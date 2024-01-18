@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AddTaskModal from "./AddTaskModal";
+import NoTaskFound from "./NoTaskFound";
 import SearchTask from "./SearchTask";
 import TaskAction from "./TaskAction";
 import TaskList from "./TaskList";
@@ -50,10 +51,19 @@ const TaskBoard = () => {
     setTasks([...tasks]);
   }
   function handleFav(taskId) {
-    const taskIndex = tasks.findIndex((task) => task.id === taskId);
-    const newTasks = [...tasks];
-    newTasks[taskIndex].isFavorite = !newTasks[taskIndex].isFavorite;
-    setTasks(newTasks);
+    setTasks(
+      tasks.map((task) => {
+        if (task.id === taskId) {
+          return { ...task, isFavorite: !task.isFavorite };
+        }
+      })
+    );
+  }
+  function handleSearch(searchTerm) {
+    const filtered = tasks.filter((task) =>
+      task.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setTasks([...filtered]);
   }
   return (
     <section className="mb-20" id="tasks">
@@ -66,7 +76,7 @@ const TaskBoard = () => {
       )}
       <div className="container">
         {/* Search Box  */}
-        <SearchTask />
+        <SearchTask onSearch={handleSearch} />
         {/* Search Box Ends  */}
         <div className="rounded-xl border border-[rgba(206,206,206,0.12)] bg-[#1D212B] px-6 py-8 md:px-9 md:py-16">
           {/* task action start */}
@@ -80,12 +90,16 @@ const TaskBoard = () => {
 
           {/* task list start */}
 
-          <TaskList
-            tasks={tasks}
-            onEdit={handleEditTask}
-            onDelete={handleDeleteTask}
-            onFav={handleFav}
-          />
+          {tasks.length > 0 ? (
+            <TaskList
+              tasks={tasks}
+              onEdit={handleEditTask}
+              onDelete={handleDeleteTask}
+              onFav={handleFav}
+            />
+          ) : (
+            <NoTaskFound />
+          )}
 
           {/* task list end */}
         </div>
